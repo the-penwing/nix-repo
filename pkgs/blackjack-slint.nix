@@ -1,10 +1,13 @@
 {
   lib,
   stdenv,
-  fetchgit,
+  fetchFromGitHub,
   rustPlatform,
   pkg-config,
   makeWrapper,
+  makeDesktopItem,
+  copyDesktopItems,
+  imagemagick,
   fontconfig,
   libxkbcommon,
   wayland,
@@ -17,13 +20,24 @@
   libxrandr,
   darwin,
 }: let
-  src = fetchgit {
-    url = "https://github.com/the-penwing/blackjack-slint.git";
+  src = fetchFromGitHub {
+    owner = "the-penwing";
+    repo = "blackjack-slint";
     rev = "7ccf1b2f34bdc8af95d8a817187ff282ac536033";
-    sha256 = "sha256-cG+YTsUBU2MZmxmFGYPiAwlAh1CsXu4DZyppDjgmaa8=";
+    hash = "sha256-cG+YTsUBU2MZmxmFGYPiAwlAh1CsXu4DZyppDjgmaa8=";
   };
 
   isDarwin = stdenv.hostPlatform.isDarwin;
+
+  desktopItem = makeDesktopItem {
+    name = "blackjack-slint";
+    desktopName = "Blackjack";
+    comment = "Blackjack GUI built with Slint";
+    exec = "blackjack-slint";
+    icon = "blackjack-slint";
+    categories = ["Game" "CardGame"];
+    terminal = false;
+  };
 
   linuxRuntimeLibs = [
     libxkbcommon
@@ -65,7 +79,11 @@ in
 
     cargoLock.lockFile = "${src}/Cargo.lock";
 
-    nativeBuildInputs = [pkg-config makeWrapper];
+    nativeBuildInputs =
+      [pkg-config makeWrapper]
+      ++ lib.optionals (!isDarwin) [copyDesktopItems imagemagick];
+    desktopItems = lib.optionals (!isDarwin) [desktopItem];
+
     buildInputs =
       if isDarwin
       then darwinBuildInputs
@@ -78,6 +96,17 @@ in
       mkdir -p $out/share/blackjack-slint
       cp -r ${src}/assets $out/share/blackjack-slint/assets
 
+      ${lib.optionalString (!isDarwin) ''
+        mkdir -p $out/share/icons/hicolor/256x256/apps
+        magick ${src}/assets/cards/spades-1.png \
+          -filter point \
+          -resize 256x256 \
+          -gravity center \
+          -background none \
+          -extent 256x256 \
+          $out/share/icons/hicolor/256x256/apps/blackjack-slint.png
+      ''}
+
       wrapProgram $out/bin/blackjack-slint \
         --set BLACKJACK_ASSETS_DIR $out/share/blackjack-slint/assets \
         ${lib.optionalString (!isDarwin) ''
@@ -87,7 +116,7 @@ in
 
     meta = {
       description = "Blackjack GUI built with Slint";
-      homepage = "https://github.com/the-penwing/blackjack-slint";
+      homepage = "https://github.com";
       platforms = lib.platforms.unix;
       license = lib.licenses.agpl3Only;
       maintainers = [

@@ -36,7 +36,7 @@ in
       maintainers = [
         {
           name = "Ben van Leeuwen";
-          email = "benvanleeuwen01@gmail.com";
+          email = "thepenwing@gmail.com";
           github = "the-penwing";
         }
       ];

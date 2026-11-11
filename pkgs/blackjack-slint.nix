@@ -89,5 +89,13 @@ in
       description = "Blackjack GUI built with Slint";
       homepage = "https://github.com/the-penwing/blackjack-slint";
       platforms = lib.platforms.unix;
+      license = lib.licenses.agpl3Only;
+      maintainers = [
+        {
+          name = "Ben van Leeuwen";
+          email = "thepenwing@gmail.com";
+          github = "the-penwing";
+        }
+      ];
     };
   }

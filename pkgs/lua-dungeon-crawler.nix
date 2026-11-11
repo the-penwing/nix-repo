@@ -1,15 +1,18 @@
 {
   lib,
   stdenv,
-  fetchgit,
+  fetchFromGitHub,
   lua5_5,
   makeWrapper,
 }: let
-  src = fetchgit {
-    url = "https://github.com/the-penwing/lua-dungeon-crawler.git";
-    rev = "2c843c227d52a1f64d201dd7177fe4e99ed9e33a";
-    sha256 = "sha256-08ycR8ziEWTyCtcgcioAIvu7LyT/vQWxYCY4xZ53Mv0=";
-  };
+  src =
+    fetchFromGitHub
+    {
+      owner = "the-penwing";
+      repo = "lua-dungeon-crawler";
+      rev = "2c843c227d52a1f64d201dd7177fe4e99ed9e33a";
+      hash = "sha256-08ycR8ziEWTyCtcgcioAIvu7LyT/vQWxYCY4xZ53Mv0=";
+    };
 in
   stdenv.mkDerivation {
     pname = "dungeon-crawler-cli";
